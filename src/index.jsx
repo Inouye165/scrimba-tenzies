@@ -1,7 +1,8 @@
+// index.js (or similar)
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App.jsx'; // <-- Make sure it says App.jsx
+import ReactDOM from 'react-dom/client'; // For React 18+
+import App from './App';
+import './index.css'; // Make sure your CSS is imported here too, often it is.
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

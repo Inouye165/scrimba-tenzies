@@ -1,9 +1,11 @@
-import React, { useState } from "react"; // Best practice: import useState directly
-import "./index.css";
+import React, { useState } from "react";
+import "./index.css"; // Ensure this import points to your CSS file
 
 /* ── Die component ── */
+// Renamed to DieButton to avoid confusion with a potential Die component div
 function Die({ value }) {
-  return <button className="die">{value}</button>;
+  // The CSS targets 'div.dice-container button', so this is correct as a button
+  return <button className="die-button">{value}</button>;
 }
 
 /* ── Main app ── */
@@ -14,19 +16,27 @@ export default function App() {
   }
 
   // 2️⃣  state – initialise with fresh dice
-  // Using the functional update for useState initial state for best practice,
-  // although generateAllNewDice() called directly works for initial state too.
-  // This ensures generateAllNewDice is only called once.
   const [dice, setDice] = useState(() => generateAllNewDice());
 
+  // Function to re-roll the dice
+  function rollDice() {
+    setDice(generateAllNewDice());
+  }
+
   // 3️⃣  map numbers → <Die> elements
+  // The 'key' prop is important for React list rendering performance and avoiding bugs
   const diceElements = dice.map((value, idx) => (
     <Die key={idx} value={value} />
   ));
 
-  return (
-    <main>
-      <div className="dice-container">{diceElements}</div>
-    </main>
-  );
+    return (
+        <main>
+            <div className="dice-container">
+                {diceElements}
+            </div>
+            
+            <button className="roll-dice" onClick={rollDice}>Roll</button>
+            
+        </main>
+    )
 }
