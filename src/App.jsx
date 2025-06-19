@@ -1,42 +1,77 @@
-import React, { useState } from "react";
-import "./index.css"; // Ensure this import points to your CSS file
+// App.jsx
 
-/* ── Die component ── */
-// Renamed to DieButton to avoid confusion with a potential Die component div
-function Die({ value }) {
-  // The CSS targets 'div.dice-container button', so this is correct as a button
-  return <button className="die-button">{value}</button>;
-}
+import { useState, useEffect } from "react"
+// Your bundler (like Vite or Create React App) is smart enough to find Die.jsx
+import Die from "./Die" 
+import { nanoid } from "nanoid"
 
-/* ── Main app ── */
 export default function App() {
-  // 1️⃣  helper – returns 10 random numbers 1-6
-  function generateAllNewDice() {
-    return Array.from({ length: 10 }, () => Math.ceil(Math.random() * 6));
-  }
+    const [dice, setDice] = useState(generateAllNewDice())
+    const [tenzies, setTenzies] = useState(false)
 
-  // 2️⃣  state – initialise with fresh dice
-  const [dice, setDice] = useState(() => generateAllNewDice());
+    useEffect(() => {
+        const allHeld = dice.every(die => die.isHeld)
+        const firstValue = dice[0].value
+        const allSameValue = dice.every(die => die.value === firstValue)
+        if (allHeld && allSameValue) {
+            setTenzies(true)
+        }
+    }, [dice])
 
-  // Function to re-roll the dice
-  function rollDice() {
-    setDice(generateAllNewDice());
-  }
+    function generateNewDie() {
+        return {
+            value: Math.ceil(Math.random() * 6),
+            isHeld: false,
+            id: nanoid()
+        }
+    }
 
-  // 3️⃣  map numbers → <Die> elements
-  // The 'key' prop is important for React list rendering performance and avoiding bugs
-  const diceElements = dice.map((value, idx) => (
-    <Die key={idx} value={value} />
-  ));
+    function generateAllNewDice() {
+        return new Array(10).fill(0).map(() => generateNewDie())
+    }
+
+    function rollDice() {
+        if (!tenzies) {
+            setDice(oldDice => oldDice.map(die => {
+                return die.isHeld ? 
+                    die :
+                    generateNewDie()
+            }))
+        } else {
+            setTenzies(false)
+            setDice(generateAllNewDice())
+        }
+    }
+
+    function holdDice(id) {
+        setDice(oldDice => oldDice.map(die => {
+            return die.id === id ? 
+                {...die, isHeld: !die.isHeld} :
+                die
+        }))
+    }
+
+    const diceElements = dice.map(die => (
+        <Die 
+            key={die.id} 
+            value={die.value} 
+            isHeld={die.isHeld}
+            holdDice={() => holdDice(die.id)}
+        />
+    ))
 
     return (
         <main>
+            {tenzies && <h1>You Won!</h1>}
             <div className="dice-container">
                 {diceElements}
             </div>
-            
-            <button className="roll-dice" onClick={rollDice}>Roll</button>
-            
+            <button 
+                className="roll-dice" 
+                onClick={rollDice}
+            >
+                {tenzies ? "New Game" : "Roll"}
+            </button>
         </main>
     )
 }
