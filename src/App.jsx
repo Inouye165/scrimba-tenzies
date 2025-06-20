@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 // Your bundler (like Vite or Create React App) is smart enough to find Die.jsx
 import Die from "./Die" 
 import { nanoid } from "nanoid"
+import Confetti from "react-confetti"
 
 export default function App() {
     const [dice, setDice] = useState(generateAllNewDice())
@@ -17,6 +18,7 @@ export default function App() {
             setTenzies(true)
         }
     }, [dice])
+    const gameWon = tenzies
 
     function generateNewDie() {
         return {
@@ -62,6 +64,7 @@ export default function App() {
 
     return (
         <main>
+            {gameWon && <Confetti />}
             {tenzies && <h1>You Won!</h1>}
             <div className="dice-container">
                 {diceElements}
